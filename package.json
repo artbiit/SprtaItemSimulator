@@ -7,8 +7,8 @@
     "url": "https://github.com/artbiit/SprtaItemSimulator"
   },
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "prisma migrate deploy && node index.js",
+    "dev": "prisma migrate deploy && nodemon index.js"  
   },
   "type": "module",
   "dependencies": {
