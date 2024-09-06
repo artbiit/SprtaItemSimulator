@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 const errorHandler = (error) => {
   let message = error.message || 'Internal Server Error';
   let statusCode = error.statusCode || 500;
-
+  logger.error(`Error occurred: ${message}, Status Code: ${statusCode}`);
   return { message, statusCode };
 };
 

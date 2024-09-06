@@ -22,6 +22,7 @@ const requiredEnv = {
     'REFRESH_EXPIRES_IN',
   ],
   SERVER: ['PORT'],
+  SECURITY: ['PEPPER'],
 };
 
 // 환경 변수 검사 및 내보내기
