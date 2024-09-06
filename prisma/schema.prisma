@@ -1,14 +1,98 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int       @id @default(autoincrement())
+  username    String    @unique
+  password    String
+  nickname    String    @db.VarChar(16)
+  role        Role      @default(USER)  // 사용자 등급
+  roleAssignedAt DateTime @default(now()) // 마지막 role 변경 날짜
+  createdAt   DateTime  @default(now())  // 가입일
+  lastLogin   DateTime? // 최근 로그인 시간
+  session     Session[]  // 다중 세션 지원을 위해 배열로 변경
+  characters  Character[]
+}
+
+model Session {
+  id              Int       @id @default(autoincrement())
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          Int
+  createdAt       DateTime  @default(now())  // 세션 시작 시간
+  expiresAt       DateTime  // 세션 만료 시간 (자동 로그아웃 처리)
+  isActive        Boolean   @default(true)   // 세션 활성화 여부
+  selectedCharacterId Int?  // 세션에 선택된 캐릭터 ID
+  selectedCharacter   Character? @relation(fields: [selectedCharacterId], references: [id]) // 선택된 캐릭터
+}
+
+
+model Character {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  createdAt   DateTime  @default(now())  // 캐릭터 생성일
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  equippedItems  Item[]  @relation("EquippedItems") // 장착 아이템
+  inventoryItems Item[]  @relation("InventoryItems") // 보유 중인 아이템 (장착되지 않음)
+  
+  stats       CharacterStats? @relation(fields: [statsId], references: [id]) // 스탯 관계
+  statsId     Int?
+  money       Int       @default(0)  // 보유 머니
+}
+
+model CharacterStats {
+  id          Int      @id @default(autoincrement())
+  health      Int      @default(100) // 체력
+  attack      Int      @default(10)  // 공격력
+  defense     Int      @default(5)   // 방어력
+  critChance  Float    @default(0.05) // 치명타 확률
+  critDamage  Float    @default(1.5)  // 치명타 배율
+  dodge       Float    @default(0.03) // 회피율
+  accuracy    Float    @default(0.95) // 명중률
+  expBonus    Float    @default(1.0)  // 경험치 획득량
+  goldBonus   Float    @default(1.0)  // 재화 획득량
+}
+
+model Item {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  price       Int       // 아이템 가격
+  isEquipable Boolean   @default(false) // 장착 가능 여부
+  maxStack    Int       @default(1)     // 중첩 가능 갯수
+  rarity      Rarity    @default(COMMON) // 희귀도
+  stats       ItemStats? // 스탯이 존재할 경우에만 추가
+}
+
+model ItemStats {
+  id          Int       @id @default(autoincrement())
+  health      Int?
+  attack      Int?
+  defense     Int?
+  critChance  Float?
+  critDamage  Float?
+  dodge       Float?
+  accuracy    Float?
+  expBonus    Float?
+  goldBonus   Float?
+}
+
+enum Role {
+  ADMIN
+  USER
+  SUSPENDED // 일시정지
+  DELETED   // 탈퇴
+}
+
+enum Rarity {
+  COMMON
+  UNCOMMON
+  RARE
+  EPIC
+  LEGENDARY
 }
