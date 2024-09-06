@@ -4,12 +4,12 @@
 
 ## API
 
-> **Tag**
-> A -> 인증 필요
-> P -> Post
-> D -> Delete
-> G -> Get
-> U -> pUt
+> **Tag**  
+> A -> 인증 필요  
+> P -> Post  
+> D -> Delete  
+> G -> Get  
+> U -> pUt  
 > T -> paTch
 
 
