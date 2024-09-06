@@ -20,7 +20,8 @@ const requiredEnv = {
     'AUDIENCE',
     'REFRESH_SECRET',
     'REFRESH_EXPIRES_IN',
-  ], // Refresh 관련 추가
+  ],
+  SERVER: ['PORT'],
 };
 
 // 환경 변수 검사 및 내보내기
@@ -32,16 +33,23 @@ Object.keys(requiredEnv).forEach((key) => {
     if (!process.env[fullEnvVar]) {
       throw new Error(`Missing required environment variable: ${fullEnvVar}`);
     }
-    config[envVar] = process.env[fullEnvVar];
+    if (!config[key]) {
+      config[key] = {};
+    }
+    config[key][envVar] = process.env[fullEnvVar];
   });
 });
 
-export const {
-  SECRET: JWT_SECRET,
-  EXPIRES_IN: JWT_EXPIRES_IN,
-  ALGORITHM: JWT_ALGORITHM,
-  ISSUER: JWT_ISSUER,
-  AUDIENCE: JWT_AUDIENCE,
-  REFRESH_SECRET: JWT_REFRESH_SECRET,
-  REFRESH_EXPIRES_IN: JWT_REFRESH_EXPIRES_IN,
-} = config;
+// flattenedConfig 객체로 모든 환경 변수를 평탄화
+const flattenedConfig = Object.entries(config).reduce(
+  (acc, [namespace, values]) => {
+    Object.entries(values).forEach(([key, value]) => {
+      acc[`${namespace}_${key}`] = value;
+    });
+    return acc;
+  },
+  {}
+);
+
+// 모든 값을 한 번에 내보내기
+export default flattenedConfig;
