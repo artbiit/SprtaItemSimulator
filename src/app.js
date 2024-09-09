@@ -43,7 +43,9 @@ const routeHandler = (action, requiredParams) => async (req, res) => {
     message = errorInfo.message;
     statusCode = errorInfo.statusCode;
   } finally {
-    res.status(statusCode).json({ success, message, ...result });
+    res
+      .status(statusCode)
+      .json({ success, ...(message && { message }), ...result });
   }
 };
 
