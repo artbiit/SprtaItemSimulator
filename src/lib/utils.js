@@ -12,8 +12,11 @@ class Utils extends NoInstance {
       return [];
     }
 
-    // 파라미터 목록에서 불필요한 공백 제거
-    return paramMatch[1].split(',').map((param) => param.trim());
+    // 중괄호 및 불필요한 공백 제거
+    return paramMatch[1]
+      .replace(/[{}]/g, '') // 중괄호 제거
+      .split(',') // 콤마로 나누기
+      .map((param) => param.trim()); // 공백 제거
   };
 }
 export default Utils;

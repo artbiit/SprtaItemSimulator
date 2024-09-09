@@ -5,10 +5,10 @@ services:
     image: mysql:latest
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: lostark
-      MYSQL_USER: lostark
-      MYSQL_PASSWORD: FhtmxmdkRm1!
+      MYSQL_ROOT_PASSWORD: RlfnrRlfnr1!
+      MYSQL_DATABASE: sparta
+      MYSQL_USER: sparta
+      MYSQL_PASSWORD: RlfnrRlfnr1!
     ports:
       - "3301:3306"
       - "33061:33060"
