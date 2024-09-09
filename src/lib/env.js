@@ -1,17 +1,8 @@
 import dotenv from 'dotenv';
-
 dotenv.config();
 
 const requiredEnv = {
-  DB: [
-    'HOST',
-    'PORT',
-    'USER',
-    'PASSWORD',
-    'NAME',
-    'CONNECTION_LIMIT',
-    'TIMEOUT',
-  ],
+  DB: ['HOST', 'PORT', 'USER', 'PASSWORD', 'NAME', 'CONNECTION_LIMIT'],
   JWT: [
     'SECRET',
     'EXPIRES_IN',
@@ -20,6 +11,7 @@ const requiredEnv = {
     'AUDIENCE',
     'REFRESH_SECRET',
     'REFRESH_EXPIRES_IN',
+    'ALGORITHM',
   ],
   SERVER: ['PORT'],
   SECURITY: ['PEPPER'],
@@ -47,6 +39,7 @@ const flattenedConfig = Object.entries(config).reduce(
     Object.entries(values).forEach(([key, value]) => {
       acc[`${namespace}_${key}`] = value;
     });
+
     return acc;
   },
   {}

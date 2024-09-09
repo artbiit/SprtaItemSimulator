@@ -1,12 +1,13 @@
+import env from './lib/env.js';
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import { SERVER_PORT } from './lib/env.js';
 import logger from './lib/logger.js';
 import allRoutes from './routes/routes.js';
 import ApiError from './errors/api-error.js';
 
+const { SERVER_PORT } = env;
 const app = express();
 app.use(helmet());
 app.use(cors());

@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../config/env.js';
+import env from '../lib/env.js';
 import ApiError from '../errors/api-error.js';
-import logger from '../utils/logger.js'; // 로깅 시스템 추가
+import logger from '../lib/logger.js'; // 로깅 시스템 추가
 
+const { JWT_SECRET } = env;
 export const authenticateToken = (req, res, next) => {
   const token = req.headers['authorization'];
 

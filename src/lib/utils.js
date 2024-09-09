@@ -1,4 +1,4 @@
-import NoInstance from '../design-patterns/no-instance';
+import NoInstance from '../design-patterns/no-instance.js';
 
 class Utils extends NoInstance {
   /**

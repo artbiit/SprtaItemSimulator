@@ -1,23 +1,25 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import ApiError from '../errors/api-error.js';
-import {
-  JWT_SECRET,
-  JWT_EXPIRES_IN,
-  JWT_ALGORITHM,
-  JWT_ISSUER,
-  JWT_AUDIENCE,
-  SECURITY_PEPPER,
-} from '../config/env.js';
+import env from '../lib/env.js';
 
 import {
   findUserByUsername,
   createUser,
   deleteUser,
   updateUserPassword,
+  deleteSelectedCharacterForUser,
 } from '../repositories/user-repository.js';
 import logger from '../lib/logger.js'; // 로깅 시스템 추가
 
+const {
+  JWT_SECRET,
+  JWT_EXPIRES_IN,
+  JWT_ALGORITHM,
+  JWT_ISSUER,
+  JWT_AUDIENCE,
+  SECURITY_PEPPER,
+} = env;
 const getPepperedPassword = (password) => {
   return `${password}${SECURITY_PEPPER}`;
 };
@@ -53,6 +55,8 @@ export const loginUser = async ({ username, password }) => {
     throw new ApiError('Invalid username or password', 401);
   }
 
+  await deleteSelectedCharacterForUser(user.id);
+
   const token = jwt.sign(
     { userId: user.id, username: user.username },
     JWT_SECRET,
@@ -65,6 +69,17 @@ export const loginUser = async ({ username, password }) => {
   );
 
   return { token };
+};
+
+//로그아웃 서비스
+export const logoutUser = async (userId) => {
+  await deleteSelectedCharacterForUser(userId);
+  // 즉시 만료되는 토큰 발급 (expiresIn: '1ms')
+  const token = jwt.sign({ userId }, JWT_SECRET, {
+    expiresIn: '1ms',
+  });
+
+  return { message: 'Logged out successfully', token };
 };
 
 // 비밀번호 변경 서비스
