@@ -27,8 +27,6 @@ const routeHandler = (action, requiredParams) => async (req, res) => {
   let result = {};
   try {
     // 필수 파라미터 검증
-    console.log(req.body);
-    console.log(requiredParams);
     const missingParams = requiredParams.filter((param) => !req.body[param]);
     if (missingParams.length > 0) {
       throw new ApiError(
