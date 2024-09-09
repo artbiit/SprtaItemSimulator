@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import ApiError from '../errors/api-error.js';
 import env from '../lib/env.js';
+import Utils from '../lib/utils.js';
 
 import {
   findUserByUsername,
@@ -21,12 +22,10 @@ const {
   JWT_AUDIENCE,
   SECURITY_PEPPER,
 } = env;
-const getPepperedPassword = (password) => {
-  return `${password}${SECURITY_PEPPER}`;
-};
+
 // 회원가입 서비스
 export const registerUser = async ({ username, password, nickname }) => {
-  const pepperedPassword = getPepperedPassword(password);
+  const pepperedPassword = Utils.getPepperedPassword(password);
   const hashedPassword = await bcrypt.hash(pepperedPassword, 10);
 
   try {
@@ -50,7 +49,7 @@ export const loginUser = async ({ username, password }) => {
     throw new ApiError('Invalid username or password', 401);
   }
 
-  const pepperedPassword = getPepperedPassword(password);
+  const pepperedPassword = Utils.getPepperedPassword(password);
   const validPassword = await bcrypt.compare(pepperedPassword, user.password);
   if (!validPassword) {
     throw new ApiError('Invalid username or password', 401);
@@ -87,7 +86,7 @@ export const logoutUser = async ({ userId }) => {
 export const changePassword = async ({ userId, oldPassword, newPassword }) => {
   const user = await findUserById(userId);
   const validPassword = await bcrypt.compare(
-    getPepperedPassword(oldPassword),
+    Utils.getPepperedPassword(oldPassword),
     user.password
   );
 
@@ -99,7 +98,7 @@ export const changePassword = async ({ userId, oldPassword, newPassword }) => {
   }
 
   const hashedPassword = await bcrypt.hash(
-    getPepperedPassword(newPassword),
+    Utils.getPepperedPassword(newPassword),
     10
   );
   await updateUserPassword(userId, hashedPassword);

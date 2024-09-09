@@ -13,7 +13,7 @@ const requiredEnv = {
     'REFRESH_EXPIRES_IN',
     'ALGORITHM',
   ],
-  SERVER: ['PORT'],
+  SERVER: ['PORT', 'ADMIN_ID', 'ADMIN_PW'],
   SECURITY: ['PEPPER'],
 };
 

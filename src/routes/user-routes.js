@@ -3,6 +3,7 @@ import {
   loginUser,
   changePassword,
   deleteUserById,
+  logoutUser,
 } from '../services/user-service.js';
 
 const authRoutes = [
@@ -27,6 +28,13 @@ const authRoutes = [
     method: 'delete',
     url: '/users', // 회원 삭제 (DELETE /users)
     action: deleteUserById,
+    authRequired: true, // 인증 필요
+    ownershipRequired: true,
+  },
+  {
+    method: 'post',
+    url: '/users/logout', // 회원 삭제 (DELETE /users)
+    action: logoutUser,
     authRequired: true, // 인증 필요
     ownershipRequired: true,
   },
