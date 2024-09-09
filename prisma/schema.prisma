@@ -48,16 +48,16 @@ model User {
 
 model Character {
   id                Int       @id @default(autoincrement())
-  name              String
-  health            Int
-  attackPower       Int
-  defense           Int
-  critChance        Float
-  critMultiplier    Float
-  evasion           Float
-  accuracy          Float
-  expGainRate       Float
-  goldGainRate      Float
+  name              String    @unique
+  health            Int       @default(0)
+  attackPower       Int       @default(0)
+  defense           Int       @default(0)
+  critChance        Float     @default(0)
+  critMultiplier    Float     @default(0)
+  evasion           Float     @default(0)
+  accuracy          Float     @default(0)
+  expGainRate       Float     @default(0)
+  goldGainRate      Float     @default(0)
   ownerId           Int
   owner             User      @relation("UserCharacters", fields: [ownerId], references: [id])
   equippedItems     Item[]    @relation("EquippedItems")

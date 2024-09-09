@@ -168,16 +168,15 @@ export const deleteUserById = async ({ userId }) => {
 
 // 토큰 재발급 API
 export const refreshToken = async ({ refreshToken }) => {
+  // 리프레시 토큰 검증
+  const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
+
+  // 유저가 DB에 존재하는지 확인
+  const user = await findUserById(decoded.userId);
+  if (!user) {
+    throw new ApiError('User not found', 404);
+  }
   try {
-    // 리프레시 토큰 검증
-    const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
-
-    // 유저가 DB에 존재하는지 확인
-    const user = await findUserById(decoded.userId);
-    if (!user) {
-      throw new ApiError('User not found', 404);
-    }
-
     // 새로운 액세스 토큰 발급
     const newAccessToken = jwt.sign(
       { userId: user.id, username: user.username },
@@ -198,34 +197,28 @@ export const refreshToken = async ({ refreshToken }) => {
 
 /** 사용자 권한 변경 */
 export const changeUserRole = async ({ userId, targetUserName, newRole }) => {
+  const requestingUser = await findUserById(userId);
+  if (!requestingUser || requestingUser.role !== 'ADMIN') {
+    throw new ApiError('Only admins can change user roles', 403); // 관리자 권한이 없는 경우
+  }
+
+  // 변경하려는 대상이 env에 있는 관리자 계정이면 변경 불가
+  const targetUser = await findUserByUsername(targetUserName);
+  if (!targetUser) {
+    throw new ApiError('User not found', 404); // 유저가 없는 경우
+  }
+
+  // 대상 계정이 ENV에 정의된 관리자 계정과 동일한지 확인
+  if (targetUser.username === SERVER_ADMIN_ID) {
+    throw new ApiError('Cannot change the role of this protected account', 403); // 보호된 계정은 변경 불가
+  }
+
   try {
-    const requestingUser = await findUserById(userId);
-    if (!requestingUser || requestingUser.role !== 'ADMIN') {
-      throw new ApiError('Only admins can change user roles', 403); // 관리자 권한이 없는 경우
-    }
-
-    // 변경하려는 대상이 env에 있는 관리자 계정이면 변경 불가
-    const targetUser = await findUserByUsername(targetUserName);
-    if (!targetUser) {
-      throw new ApiError('User not found', 404); // 유저가 없는 경우
-    }
-
-    // 대상 계정이 ENV에 정의된 관리자 계정과 동일한지 확인
-    if (targetUser.username === SERVER_ADMIN_ID) {
-      throw new ApiError(
-        'Cannot change the role of this protected account',
-        403
-      ); // 보호된 계정은 변경 불가
-    }
-
     // 사용자 권한 변경
     await updateUserRole(targetUser.id, newRole);
     return { message: 'User role updated successfully' };
   } catch (error) {
     logger.error(`ChangeUserRole Error : ${error}`);
-    if (error instanceof ApiError) {
-      throw error;
-    }
     throw new ApiError(
       "An error occurred while attempting to change the user's role.",
       500

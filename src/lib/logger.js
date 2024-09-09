@@ -10,7 +10,7 @@ const logFormat = winston.format.printf(({ timestamp, level, message }) => {
 const transport = new winston.transports.DailyRotateFile({
   filename: 'logs/application-%DATE%.log',
   datePattern: 'YYYY-MM-DD-HH',
-  maxFiles: '5d', // 5일간의 로그 파일만 유지
+  maxFiles: '120', // 5일간의 로그 파일만 유지
   zippedArchive: true, // 로그 파일 압축
 });
 

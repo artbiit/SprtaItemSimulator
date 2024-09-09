@@ -26,8 +26,18 @@ const routeHandler = (action, requiredParams) => async (req, res) => {
   let message = null;
   let result = {};
   try {
+    // 요청 방식에 따라 적절한 데이터를 가져옴
+    const data = {
+      ...(req.method === 'GET'
+        ? { ...req.params, ...req.query }
+        : { ...req.body }),
+      ...req.user,
+    };
     // 필수 파라미터 검증
-    const missingParams = requiredParams.filter((param) => !req.body[param]);
+    const missingParams = requiredParams.filter(
+      (param) => param && !data[param].trim()
+    );
+
     if (missingParams.length > 0) {
       throw new ApiError(
         `Missing required parameters: ${missingParams.join(', ')}`,
@@ -36,7 +46,7 @@ const routeHandler = (action, requiredParams) => async (req, res) => {
     }
 
     // 서비스 호출 및 결과 반환
-    result = await action({ ...req.body });
+    result = await action({ ...data });
   } catch (error) {
     success = false;
     const errorInfo = errorHandler(error);

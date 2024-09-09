@@ -3,9 +3,12 @@ import Utils from '../lib/utils.js';
 import { authenticateToken } from '../middleware/auth-middleware.js';
 import { verifyOwnership } from '../middleware/ownership-middleware.js';
 import { checkUserRole } from '../middleware/role-middleware.js';
+import { tokenVerify } from '../middleware/token-middleware.js';
+import characterRoutes from './character-route.js';
 
 const allRoutes = [
   ...userRoutes,
+  ...characterRoutes,
   // 다른 라우트 추가 가능
 ];
 
@@ -14,11 +17,11 @@ allRoutes.forEach((route) => {
   route.requiredParams = Utils.getFunctionParams(route.action);
 
   if (!route.middleware) {
-    route.middleware = [];
+    route.middleware = [tokenVerify];
   }
 
   if (route.authRequired) {
-    route.middleware.unshift(authenticateToken);
+    route.middleware.push(authenticateToken);
   }
 
   if (route.ownershipRequired) {

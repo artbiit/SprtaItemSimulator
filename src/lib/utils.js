@@ -5,6 +5,7 @@ const { SECURITY_PEPPER } = env;
 class Utils extends NoInstance {
   /**
    *  해당 함수의 파라미터 목록을 반환합니다.
+   *  기본값이 지정된 파라미터는 제외합니다.
    */
   static getFunctionParams = (fn) => {
     const fnStr = fn.toString();
@@ -14,11 +15,12 @@ class Utils extends NoInstance {
       return [];
     }
 
-    // 중괄호 및 불필요한 공백 제거
+    // 중괄호 및 불필요한 공백 제거, 기본값 지정된 파라미터 제외
     return paramMatch[1]
       .replace(/[{}]/g, '') // 중괄호 제거
       .split(',') // 콤마로 나누기
-      .map((param) => param.trim()); // 공백 제거
+      .map((param) => param.trim()) // 공백 제거
+      .filter((param) => !param.includes('=')); // 기본값이 있는 파라미터 제외
   };
 
   /** 비번에 후추를 칩니다. */
