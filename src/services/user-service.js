@@ -9,6 +9,7 @@ import {
   deleteUser,
   updateUserPassword,
   deleteSelectedCharacterForUser,
+  findUserById,
 } from '../repositories/user-repository.js';
 import logger from '../lib/logger.js'; // 로깅 시스템 추가
 
@@ -72,7 +73,7 @@ export const loginUser = async ({ username, password }) => {
 };
 
 //로그아웃 서비스
-export const logoutUser = async (userId) => {
+export const logoutUser = async ({ userId }) => {
   await deleteSelectedCharacterForUser(userId);
   // 즉시 만료되는 토큰 발급 (expiresIn: '1ms')
   const token = jwt.sign({ userId }, JWT_SECRET, {
@@ -83,9 +84,13 @@ export const logoutUser = async (userId) => {
 };
 
 // 비밀번호 변경 서비스
-export const changePassword = async (userId, oldPassword, newPassword) => {
-  const user = await findUserByUsername(userId);
-  const validPassword = await bcrypt.compare(oldPassword, user.password);
+export const changePassword = async ({ userId, oldPassword, newPassword }) => {
+  const user = await findUserById(userId);
+  const validPassword = await bcrypt.compare(
+    getPepperedPassword(oldPassword),
+    user.password
+  );
+
   if (!validPassword) {
     logger.warn(
       `Password change failed: incorrect old password for user ${userId}`
@@ -100,7 +105,7 @@ export const changePassword = async (userId, oldPassword, newPassword) => {
 };
 
 // 회원 삭제 서비스
-export const deleteUserById = async (userId) => {
+export const deleteUserById = async ({ userId }) => {
   await deleteUser(userId);
   logger.info(`User deleted: ${userId}`);
   return { message: 'User deleted successfully' };

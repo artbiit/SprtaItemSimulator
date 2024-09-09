@@ -36,7 +36,7 @@ const routeHandler = (action, requiredParams) => async (req, res) => {
     }
 
     // 서비스 호출 및 결과 반환
-    result = await action(req.body);
+    result = await action({ ...req.body });
   } catch (error) {
     success = false;
     const errorInfo = errorHandler(error);

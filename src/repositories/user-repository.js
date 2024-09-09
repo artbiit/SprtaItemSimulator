@@ -12,6 +12,10 @@ export const createUser = async ({ username, password, nickname }) => {
   });
 };
 
+export const findUserById = async (userId) => {
+  return await prisma.user.findUnique({ where: { id: userId } });
+};
+
 // 유저 조회 by Username
 export const findUserByUsername = async (username) => {
   return await prisma.user.findUnique({

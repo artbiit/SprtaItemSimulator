@@ -5,8 +5,8 @@ import logger from '../lib/logger.js'; // 로깅 시스템 추가
 
 const { JWT_SECRET } = env;
 export const authenticateToken = (req, res, next) => {
-  const token = req.headers['authorization'];
-
+  let token = req.headers['authorization'];
+  token = token && token.split(' ')[1];
   if (!token) {
     logger.warn('Missing token');
     return next(new ApiError('Token is required', 401)); // 401 Unauthorized
@@ -17,8 +17,8 @@ export const authenticateToken = (req, res, next) => {
       logger.warn(`Invalid token: ${token}`);
       return next(new ApiError('Invalid token', 403)); // 403 Forbidden
     }
-
-    req.user = user;
+    req.body.userId = user.userId;
+    req.body.username = user.username;
     next();
   });
 };
