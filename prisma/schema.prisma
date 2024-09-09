@@ -69,7 +69,6 @@ enum Role {
   ADMIN
   USER
   SUSPENDED
-  DELETED 
 }
 
 enum Rarity {

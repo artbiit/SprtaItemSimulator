@@ -25,5 +25,20 @@ class Utils extends NoInstance {
   static getPepperedPassword = (password) => {
     return `${password}${SECURITY_PEPPER}`;
   };
+
+  /** 유저 id 규칙에 해당하는지 검사합니다. */
+  static testUsername = (username) => /^[a-zA-Z0-9]{5,}$/.test(username);
+
+  /** 유저 비번 규칙에 해당하는지 검사합니다. */
+  static testPassword = (password) =>
+    /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])[a-zA-Z\d!@#$%^&*]{6,}$/.test(
+      password
+    );
+
+  /** 유저 닉네임 규칙에 해당하는지 검사합니다. */
+  static testNickname = (nickname) =>
+    /^(?=.*[가-힣])([가-힣a-zA-Z0-9]{1,16})$|^[a-zA-Z0-9]{1,32}$/.test(
+      nickname
+    );
 }
 export default Utils;

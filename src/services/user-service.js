@@ -11,6 +11,7 @@ import {
   updateUserPassword,
   deleteSelectedCharacterForUser,
   findUserById,
+  updateUserRole,
 } from '../repositories/user-repository.js';
 import logger from '../lib/logger.js'; // 로깅 시스템 추가
 
@@ -20,11 +21,34 @@ const {
   JWT_ALGORITHM,
   JWT_ISSUER,
   JWT_AUDIENCE,
-  SECURITY_PEPPER,
+  JWT_REFRESH_EXPIRES_IN,
+  JWT_REFRESH_SECRET,
+  SERVER_ADMIN_ID,
 } = env;
 
 // 회원가입 서비스
 export const registerUser = async ({ username, password, nickname }) => {
+  if (!Utils.testUsername(username)) {
+    throw new ApiError(
+      'The username must contain at least 5 characters, using only letters and numbers',
+      400
+    );
+  }
+
+  if (!Utils.testPassword(password)) {
+    throw new ApiError(
+      'The password must be at least 6 characters long and include letters, numbers, and special characters.',
+      400
+    );
+  }
+
+  if (!Utils.testNickname(nickname)) {
+    throw new ApiError(
+      'The nickname can contain up to 16 Korean characters, or a mix of letters and numbers up to 32 characters, with no special characters allowed.',
+      400
+    );
+  }
+
   const pepperedPassword = Utils.getPepperedPassword(password);
   const hashedPassword = await bcrypt.hash(pepperedPassword, 10);
 
@@ -49,6 +73,13 @@ export const loginUser = async ({ username, password }) => {
     throw new ApiError('Invalid username or password', 401);
   }
 
+  if (user.role === 'SUSPEND') {
+    throw new ApiError(
+      'Your account has been suspended. Please contact support for further assistance.',
+      403
+    );
+  }
+
   const pepperedPassword = Utils.getPepperedPassword(password);
   const validPassword = await bcrypt.compare(pepperedPassword, user.password);
   if (!validPassword) {
@@ -68,7 +99,19 @@ export const loginUser = async ({ username, password }) => {
     }
   );
 
-  return { token };
+  // Refresh Token 발급
+  const refreshToken = jwt.sign(
+    { userId: user.id, username: user.username },
+    JWT_REFRESH_SECRET,
+    {
+      expiresIn: JWT_REFRESH_EXPIRES_IN,
+      algorithm: JWT_ALGORITHM,
+      issuer: JWT_ISSUER,
+      audience: JWT_AUDIENCE,
+    }
+  );
+
+  return { token, refreshToken };
 };
 
 //로그아웃 서비스
@@ -121,4 +164,71 @@ export const deleteUserById = async ({ userId }) => {
   await deleteUser(userId);
   logger.info(`User deleted: ${userId}`);
   return { message: 'User deleted successfully' };
+};
+
+// 토큰 재발급 API
+export const refreshToken = async ({ refreshToken }) => {
+  try {
+    // 리프레시 토큰 검증
+    const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
+
+    // 유저가 DB에 존재하는지 확인
+    const user = await findUserById(decoded.userId);
+    if (!user) {
+      throw new ApiError('User not found', 404);
+    }
+
+    // 새로운 액세스 토큰 발급
+    const newAccessToken = jwt.sign(
+      { userId: user.id, username: user.username },
+      JWT_SECRET,
+      {
+        expiresIn: JWT_EXPIRES_IN,
+        algorithm: JWT_ALGORITHM,
+        issuer: JWT_ISSUER,
+        audience: JWT_AUDIENCE,
+      }
+    );
+
+    return { token: newAccessToken };
+  } catch (error) {
+    throw new ApiError('Invalid or expired refresh token', 403); // 리프레시 토큰이 유효하지 않은 경우
+  }
+};
+
+/** 사용자 권한 변경 */
+export const changeUserRole = async ({ userId, targetUserName, newRole }) => {
+  try {
+    const requestingUser = await findUserById(userId);
+    if (!requestingUser || requestingUser.role !== 'ADMIN') {
+      throw new ApiError('Only admins can change user roles', 403); // 관리자 권한이 없는 경우
+    }
+
+    // 변경하려는 대상이 env에 있는 관리자 계정이면 변경 불가
+    const targetUser = await findUserByUsername(targetUserName);
+    if (!targetUser) {
+      throw new ApiError('User not found', 404); // 유저가 없는 경우
+    }
+
+    // 대상 계정이 ENV에 정의된 관리자 계정과 동일한지 확인
+    if (targetUser.username === SERVER_ADMIN_ID) {
+      throw new ApiError(
+        'Cannot change the role of this protected account',
+        403
+      ); // 보호된 계정은 변경 불가
+    }
+
+    // 사용자 권한 변경
+    await updateUserRole(targetUser.id, newRole);
+    return { message: 'User role updated successfully' };
+  } catch (error) {
+    logger.error(`ChangeUserRole Error : ${error}`);
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError(
+      "An error occurred while attempting to change the user's role.",
+      500
+    );
+  }
 };

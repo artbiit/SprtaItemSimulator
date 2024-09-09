@@ -45,3 +45,11 @@ export const deleteSelectedCharacterForUser = async (userId) => {
     data: { selectedCharacterId: null },
   });
 };
+
+// 유저의 권한을 업데이트하는 함수
+export const updateUserRole = async (userId, newRole) => {
+  return prisma.user.update({
+    where: { id: userId },
+    data: { role: newRole },
+  });
+};
