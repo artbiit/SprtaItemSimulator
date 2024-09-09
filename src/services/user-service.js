@@ -98,7 +98,10 @@ export const changePassword = async ({ userId, oldPassword, newPassword }) => {
     throw new ApiError('Old password is incorrect', 401);
   }
 
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  const hashedPassword = await bcrypt.hash(
+    getPepperedPassword(newPassword),
+    10
+  );
   await updateUserPassword(userId, hashedPassword);
   logger.info(`Password changed for user: ${userId}`);
   return { message: 'Password updated successfully' };
