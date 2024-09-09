@@ -108,6 +108,16 @@ export const changePassword = async ({ userId, oldPassword, newPassword }) => {
 
 // 회원 삭제 서비스
 export const deleteUserById = async ({ userId }) => {
+  // 1. 유저 정보 가져오기
+  const user = await findUserById(userId);
+
+  // 2. 유저의 권한(role)이 'ADMIN'인지 확인
+  if (user.role === 'ADMIN') {
+    logger.warn(`Attempt to delete admin account: ${userId}`);
+    throw new ApiError('Admin accounts cannot be deleted', 403); // 403 Forbidden
+  }
+
+  // 3. 권한이 관리자(Admin)가 아니면 삭제
   await deleteUser(userId);
   logger.info(`User deleted: ${userId}`);
   return { message: 'User deleted successfully' };
