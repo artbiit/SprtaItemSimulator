@@ -6,11 +6,13 @@ import { checkUserRole } from '../middleware/role-middleware.js';
 import { tokenVerify } from '../middleware/token-middleware.js';
 import characterRoutes from './character-route.js';
 import itemManagementRoutes from './item-management-routes.js';
+import itemInteractionRoutes from './item-interaction-route.js';
 
 const allRoutes = [
   ...userRoutes,
   ...characterRoutes,
   ...itemManagementRoutes,
+  ...itemInteractionRoutes,
   // 다른 라우트 추가 가능
 ];
 
