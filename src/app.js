@@ -67,16 +67,16 @@ const routeHandler = (action, requiredParams) => async (req, res) => {
   }
 };
 
-// 에러 처리 미들웨어
-app.use((error, req, res, next) => {
-  const { message, statusCode } = errorHandler(error);
-  res.status(statusCode).json({ success: false, message });
-});
-
 //모든 라우팅 등록
 allRoutes.forEach((api) => {
   const { method, url, action, middleware, requiredParams } = api;
   app[method](url, ...middleware, routeHandler(action, requiredParams));
+});
+
+// 에러 처리 미들웨어
+app.use((error, req, res, next) => {
+  const { message, statusCode } = errorHandler(error);
+  res.status(statusCode).json({ success: false, message });
 });
 
 app.listen(SERVER_PORT, () => {
