@@ -17,14 +17,16 @@ app.use(helmet());
 app.use(cors());
 app.use(bodyParser.json());
 
-const errorHandler = (error) => {
+const errorHandler = (error, req) => {
   let message = 'Internal Server Error';
   let statusCode = 500;
   if (error instanceof ApiError) {
     message = error.message;
     statusCode = error.statusCode;
   }
-  logger.error(`Error occurred: ${message}, Status Code: ${statusCode}`);
+  logger.error(
+    `Error occurred: ${req.url}/${req.method} => ${error}, Status Code: ${statusCode}`
+  );
   return { message, statusCode };
 };
 
@@ -57,7 +59,7 @@ const routeHandler = (action, requiredParams) => async (req, res) => {
     result = await action({ ...data });
   } catch (error) {
     success = false;
-    const errorInfo = errorHandler(error);
+    const errorInfo = errorHandler(error, req);
     message = errorInfo.message;
     statusCode = errorInfo.statusCode;
   } finally {
@@ -75,7 +77,7 @@ allRoutes.forEach((api) => {
 
 // 에러 처리 미들웨어
 app.use((error, req, res, next) => {
-  const { message, statusCode } = errorHandler(error);
+  const { message, statusCode } = errorHandler(error, req);
   res.status(statusCode).json({ success: false, message });
 });
 

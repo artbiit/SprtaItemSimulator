@@ -9,7 +9,6 @@ const rolePermissions = {
  * 토큰 인증과 권한 인증이 같이 필요한 경우 사용하는 미들웨업니다. 따라서 auth-middleware에서 토큰 인증이 완료된 경우만 동작합니다.
  */
 export const checkUserRole = (roleRequired) => (req, res, next) => {
-  console.log('CheckUserRole : ', roleRequired);
   const user = req.user;
   // SUSPENDED 상태면 차단
   if (user?.role === 'SUSPENDED') {
