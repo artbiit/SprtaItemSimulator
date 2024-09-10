@@ -7,11 +7,12 @@
     "url": "https://github.com/artbiit/SprtaItemSimulator"
   },
   "scripts": {
-    "start": "npx prisma migrate deploy --name live && node src/app.js",
-    "dev": "npx prisma migrate dev --name nodemon && nodemon src/app.js"
+    "start": "npx prisma migrate deploy && node src/app.js",
+    "dev": "npx prisma migrate dev && nodemon src/app.js"
   },
   "type": "module",
   "dependencies": {
+    "@faker-js/faker": "^9.0.0",
     "@prisma/client": "^5.19.1",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",

@@ -50,6 +50,7 @@ const authRoutes = [
     url: '/users/role', //사용자 등급 변경
     action: changeUserRole,
     authRequired: true, // 인증 필요
+    roleRequired: 'ADMIN',
   },
 ];
 

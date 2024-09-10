@@ -73,7 +73,7 @@ export const loginUser = async ({ username, password }) => {
     throw new ApiError('Invalid username or password', 401);
   }
 
-  if (user.role === 'SUSPEND') {
+  if (user.role === 'SUSPENDED') {
     throw new ApiError(
       'Your account has been suspended. Please contact support for further assistance.',
       403

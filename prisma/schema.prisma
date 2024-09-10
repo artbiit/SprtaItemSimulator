@@ -8,67 +8,67 @@ datasource db {
 }
 
 model Item {
-  id          Int        @id @default(autoincrement())
-  name        String
-  value       Int
-  isEquippable Boolean
-  maxStack    Int
-  rarity      Rarity
-  stats       ItemStat[] @relation("ItemStats") // 아이템과 스탯의 관계 설정
-  equippedByCharacterId Int? 
-  inventoryOfCharacterId Int? 
-  equippedBy Character? @relation("EquippedItems", fields: [equippedByCharacterId], references: [id])
-  inventoryOf Character? @relation("InventoryItems", fields: [inventoryOfCharacterId], references: [id])
+  id                     Int        @id @default(autoincrement())
+  name                   String
+  value                  Int
+  isEquippable           Boolean
+  maxStack               Int
+  rarity                 Rarity
+  equippedByCharacterId  Int?
+  inventoryOfCharacterId Int?
+  equippedBy             Character? @relation("EquippedItems", fields: [equippedByCharacterId], references: [id])
+  inventoryOf            Character? @relation("InventoryItems", fields: [inventoryOfCharacterId], references: [id])
+  stats                  ItemStat[] @relation("ItemStats")
+
+  @@index([equippedByCharacterId], map: "Item_equippedByCharacterId_fkey")
+  @@index([inventoryOfCharacterId], map: "Item_inventoryOfCharacterId_fkey")
 }
 
 model ItemStat {
-  id            Int      @id @default(autoincrement())
-  healthBonus   Int?     // 체력 보너스
-  attackBonus   Int?     // 공격력 보너스
-  defenseBonus  Int?     // 방어력 보너스
-  critChanceBonus Float? // 치명타 확률 보너스
-  critMultiplierBonus Float? // 치명타 배율 보너스
-  evasionBonus  Float?   // 회피율 보너스
-  accuracyBonus Float?   // 명중율 보너스
-  itemId        Int
-  item          Item      @relation("ItemStats", fields: [itemId], references: [id]) // 아이템과 스탯 연결
+  id                  Int    @id @default(autoincrement())
+  healthBonus         Int?
+  attackBonus         Int?
+  defenseBonus        Int?
+  critChanceBonus     Float?
+  critMultiplierBonus Float?
+  evasionBonus        Float?
+  accuracyBonus       Float?
+  itemId              Int
+  item                Item   @relation("ItemStats", fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@index([itemId], map: "ItemStat_itemId_fkey")
 }
 
 model User {
-  id                Int      @id @default(autoincrement())
-  username          String   @unique
-  password          String
-  nickname          String
-  role              String
-  selectedCharacterId Int?   
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  characters        Character[]  @relation("UserCharacters") 
+  id                  Int         @id @default(autoincrement())
+  username            String      @unique
+  password            String
+  nickname            String
+  role                String
+  selectedCharacterId Int?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  characters          Character[] @relation("UserCharacters")
 }
 
 model Character {
-  id                Int       @id @default(autoincrement())
-  name              String    @unique
-  health            Int       @default(0)
-  attackPower       Int       @default(0)
-  defense           Int       @default(0)
-  critChance        Float     @default(0)
-  critMultiplier    Float     @default(0)
-  evasion           Float     @default(0)
-  accuracy          Float     @default(0)
-  expGainRate       Float     @default(0)
-  goldGainRate      Float     @default(0)
-  ownerId           Int
-  owner             User      @relation("UserCharacters", fields: [ownerId], references: [id])
-  equippedItems     Item[]    @relation("EquippedItems")
-  inventoryItems    Item[]    @relation("InventoryItems")
-}
+  id             Int    @id @default(autoincrement())
+  name           String @unique
+  health         Int    @default(0)
+  attackPower    Int    @default(0)
+  defense        Int    @default(0)
+  critChance     Float  @default(0)
+  critMultiplier Float  @default(0)
+  evasion        Float  @default(0)
+  accuracy       Float  @default(0)
+  expGainRate    Float  @default(0)
+  goldGainRate   Float  @default(0)
+  ownerId        Int
+  owner          User   @relation("UserCharacters", fields: [ownerId], references: [id])
+  equippedItems  Item[] @relation("EquippedItems")
+  inventoryItems Item[] @relation("InventoryItems")
 
-
-enum Role {
-  ADMIN
-  USER
-  SUSPENDED
+  @@index([ownerId], map: "Character_ownerId_fkey")
 }
 
 enum Rarity {

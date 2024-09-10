@@ -5,10 +5,12 @@ import { verifyOwnership } from '../middleware/ownership-middleware.js';
 import { checkUserRole } from '../middleware/role-middleware.js';
 import { tokenVerify } from '../middleware/token-middleware.js';
 import characterRoutes from './character-route.js';
+import itemManagementRoutes from './item-management-routes.js';
 
 const allRoutes = [
   ...userRoutes,
   ...characterRoutes,
+  ...itemManagementRoutes,
   // 다른 라우트 추가 가능
 ];
 
@@ -16,9 +18,7 @@ const allRoutes = [
 allRoutes.forEach((route) => {
   route.requiredParams = Utils.getFunctionParams(route.action);
 
-  if (!route.middleware) {
-    route.middleware = [tokenVerify];
-  }
+  route.middleware = [tokenVerify];
 
   if (route.authRequired) {
     route.middleware.push(authenticateToken);
@@ -27,10 +27,7 @@ allRoutes.forEach((route) => {
   if (route.ownershipRequired) {
     route.middleware.push(verifyOwnership);
   }
-
-  if (route.roleRequired) {
-    route.middleware.push(checkUserRole);
-  }
+  route.middleware.push(checkUserRole);
 });
 
 export default allRoutes;

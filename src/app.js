@@ -14,8 +14,12 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const errorHandler = (error) => {
-  let message = error.message || 'Internal Server Error';
-  let statusCode = error.statusCode || 500;
+  let message = 'Internal Server Error';
+  let statusCode = 500;
+  if (error instanceof ApiError) {
+    message = error.message;
+    statusCode = error.statusCode;
+  }
   logger.error(`Error occurred: ${message}, Status Code: ${statusCode}`);
   return { message, statusCode };
 };
@@ -35,7 +39,7 @@ const routeHandler = (action, requiredParams) => async (req, res) => {
     };
     // 필수 파라미터 검증
     const missingParams = requiredParams.filter(
-      (param) => param && !data[param].trim()
+      (param) => param && !`${data[param]}`.trim()
     );
 
     if (missingParams.length > 0) {
