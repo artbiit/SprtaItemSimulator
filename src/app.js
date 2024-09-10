@@ -7,6 +7,10 @@ import logger from './lib/logger.js';
 import allRoutes from './routes/routes.js';
 import ApiError from './errors/api-error.js';
 
+import { authenticateToken } from './middleware/auth-middleware.js';
+import { checkUserRole } from './middleware/role-middleware.js';
+import { tokenVerify } from './middleware/token-middleware.js';
+
 const { SERVER_PORT } = env;
 const app = express();
 app.use(helmet());
@@ -63,16 +67,16 @@ const routeHandler = (action, requiredParams) => async (req, res) => {
   }
 };
 
-//모든 라우팅 등록
-allRoutes.forEach((api) => {
-  const { method, url, action, middleware, requiredParams } = api;
-  app[method](url, ...middleware, routeHandler(action, requiredParams));
-});
-
 // 에러 처리 미들웨어
 app.use((error, req, res, next) => {
   const { message, statusCode } = errorHandler(error);
   res.status(statusCode).json({ success: false, message });
+});
+
+//모든 라우팅 등록
+allRoutes.forEach((api) => {
+  const { method, url, action, middleware, requiredParams } = api;
+  app[method](url, ...middleware, routeHandler(action, requiredParams));
 });
 
 app.listen(SERVER_PORT, () => {

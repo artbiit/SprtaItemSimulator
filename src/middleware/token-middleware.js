@@ -33,7 +33,5 @@ export const tokenVerify = async (req, res, next) => {
       // 인증이 필요 없는 경우 여기서 에러를 반환하지 않고 다음으로 넘어감
     }
   }
-
-  next();
   next();
 };

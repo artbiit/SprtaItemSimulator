@@ -1,8 +1,8 @@
 import ApiError from '../errors/api-error.js';
 
-// JWT와 DB 정보를 이용한 소유권 확인 미들웨어
-export const verifyOwnership = async (req, res, next) => {
-  // DB에서 유저 정보 가져오기
+/** 해당 인증된 요청이 인증된 정보와 db 정보가 같은지 검사합니다.*/
+export const verifyOwnership = (req, res, next) => {
+  console.log(verifyOwnership);
   try {
     const usernameFromToken = req.user.username; // JWT에서 추출한 username
     const userFromDb = req.user.usernameFromDB;

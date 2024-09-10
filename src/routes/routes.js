@@ -27,7 +27,7 @@ allRoutes.forEach((route) => {
   if (route.ownershipRequired) {
     route.middleware.push(verifyOwnership);
   }
-  route.middleware.push(checkUserRole);
+  route.middleware.push(checkUserRole(route.roleRequired));
 });
 
 export default allRoutes;
