@@ -5,6 +5,7 @@ import {
   sellUserItem,
   equipUserItem,
   rewardUserForHunting,
+  unequipUserItem,
 } from '../services/item-interaction-service.js';
 
 const itemRoutes = [
@@ -41,6 +42,12 @@ const itemRoutes = [
     method: 'post',
     url: '/items/reward',
     action: rewardUserForHunting, // 사냥 보상 획득
+    authRequired: true,
+  },
+  {
+    method: 'post',
+    url: '/items/unequip', // 아이템 장착 해제
+    action: unequipUserItem,
     authRequired: true,
   },
 ];

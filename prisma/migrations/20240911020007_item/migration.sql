@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Item` MODIFY `quantity` INTEGER NOT NULL DEFAULT 1;

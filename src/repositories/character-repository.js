@@ -1,5 +1,31 @@
 import { prisma } from '../lib/prisma.js';
 
+export const findCharacterNameAndGoldById = (characterId) =>
+  prisma.character.findUnique({
+    where: {
+      id: characterId,
+    },
+    select: { name: true, gold: true },
+  });
+
+export const findGoldById = (characterId) => {
+  return prisma.character.findUnique({
+    where: { id: characterId },
+    select: { gold: true },
+  });
+};
+
+export const updateCharacterGold = (characterId, newGold) => {
+  if (typeof newGold !== 'number' || isNaN(newGold)) {
+    throw new Error('Invalid gold value : ', newGold);
+  }
+
+  return prisma.character.update({
+    where: { id: characterId },
+    data: { gold: newGold },
+  });
+};
+
 // 캐릭터 생성
 export const createNewCharacter = (userId, name) => {
   return prisma.character.create({

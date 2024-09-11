@@ -53,3 +53,12 @@ export const updateUserRole = async (userId, newRole) => {
     data: { role: newRole },
   });
 };
+
+// 선택된 캐릭터 정보 조회
+export const getSelectedCharacterId = async (userId) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { selectedCharacterId: true },
+  });
+  return user?.selectedCharacterId;
+};

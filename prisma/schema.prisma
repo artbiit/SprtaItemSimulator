@@ -13,6 +13,7 @@ model Item {
   value                  Int
   isEquippable           Boolean
   maxStack               Int
+  quantity               Int        @default(1)
   rarity                 Rarity
   equippedByCharacterId  Int?
   inventoryOfCharacterId Int?
