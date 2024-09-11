@@ -413,14 +413,55 @@ export const unequipItem = async (characterId, itemId) => {
   });
 };
 
-// 사냥 보상 (100원 지급)
-export const gainHuntingReward = async (userId) => {
-  return prisma.user.update({
-    where: { id: userId },
-    data: {
-      balance: {
-        increment: 100,
-      },
+export const getRandomItemByRarity = async (
+  characterId,
+  isEquipment = false
+) => {
+  const rarityChances = {
+    COMMON: 0.5,
+    UNCOMMON: 0.3,
+    RARE: 0.15,
+    EPIC: 0.04,
+    LEGENDARY: 0.01,
+  };
+
+  const randomValue = Math.random();
+  let selectedRarity = 'COMMON';
+
+  for (const [rarity, chance] of Object.entries(rarityChances)) {
+    if (randomValue < chance) {
+      selectedRarity = rarity;
+      break;
+    }
+  }
+
+  // 1. 해당 조건의 아이템 총 개수를 가져옴
+  const totalItems = await prisma.item.count({
+    where: {
+      rarity: selectedRarity,
+      isEquippable: isEquipment,
+      inventoryOfCharacterId: null,
+      equippedByCharacterId: null,
     },
   });
+
+  // 2. 총 아이템 수 중 랜덤한 오프셋을 계산
+  const randomOffset = Math.floor(Math.random() * totalItems);
+
+  // 3. 랜덤 오프셋에 해당하는 아이템을 가져옴
+  const randomItem = await prisma.item.findFirst({
+    where: {
+      rarity: selectedRarity,
+      isEquippable: isEquipment,
+      inventoryOfCharacterId: null,
+      equippedByCharacterId: null,
+    },
+    skip: randomOffset,
+  });
+
+  if (!randomItem) {
+    throw new ApiError('No item found with the specified rarity', 404);
+  }
+
+  return randomItem;
 };

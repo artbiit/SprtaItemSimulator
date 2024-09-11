@@ -26,6 +26,17 @@ export const updateCharacterGold = (characterId, newGold) => {
   });
 };
 
+// 캐릭터의 보유 골드 및 goldGainRate 정보 가져오기
+export const getCharacterGoldAndRates = async (characterId) => {
+  return prisma.character.findUnique({
+    where: { id: characterId },
+    select: {
+      gold: true,
+      goldGainRate: true,
+    },
+  });
+};
+
 // 캐릭터 생성
 export const createNewCharacter = (userId, name) => {
   return prisma.character.create({
