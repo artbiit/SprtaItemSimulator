@@ -1,6 +1,13 @@
 import ApiError from '../errors/api-error.js';
 
-/** 해당 인증된 요청이 인증된 정보와 db 정보가 같은지 검사합니다.*/
+/**
+ * 요청자가 소유한 자원에 접근하는지 확인하는 미들웨어
+ * 요청자의 정보와 DB에 저장된 정보가 일치하는지 검사합니다.
+ * @param {Object} req - Express 요청 객체
+ * @param {Object} res - Express 응답 객체
+ * @param {Function} next - 다음 미들웨어로 제어를 전달하는 함수
+ * @returns {void}
+ */
 export const verifyOwnership = (req, res, next) => {
   console.log(verifyOwnership);
   try {

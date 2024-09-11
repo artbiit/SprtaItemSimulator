@@ -1,6 +1,13 @@
 import ApiError from '../errors/api-error.js';
 
-/** 인증된 요청인지 검사합니다. 선행에 token-middleware.js에서 인증된 요청일경우 req.user를 생성하기에 이것으로 검사합니다. */
+/**
+ * 요청에 유효한 토큰이 있는지 확인하는 미들웨어
+ * 유저가 인증되었는지 확인하며, 인증되지 않은 경우 에러를 반환합니다.
+ * @param {Object} req - Express 요청 객체
+ * @param {Object} res - Express 응답 객체
+ * @param {Function} next - 다음 미들웨어로 제어를 전달하는 함수
+ * @returns {void}
+ */
 export const authenticateToken = (req, res, next) => {
   if (!req.user) {
     return next(new ApiError('Token is required or invalid', 401));

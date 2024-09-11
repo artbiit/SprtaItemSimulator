@@ -21,7 +21,16 @@ import { getSelectedCharacterId } from '../repositories/user-repository.js';
 
 import ApiError from '../errors/api-error.js';
 import { prisma } from '../lib/prisma.js';
-// 캐릭터의 아이템 목록 서비스 (인벤토리 및 장착 아이템 포함) 및 총 아이템 수 반환
+
+/**
+ * 캐릭터의 아이템 목록 조회 서비스
+ * @param {Object} param - 파라미터 객체
+ * @param {number} param.userId - 유저 ID
+ * @param {number} param.page - 페이지 번호
+ * @param {number} param.pageSize - 페이지당 항목 수
+ * @returns {Object} - 캐릭터의 아이템 목록 및 총 아이템 수
+ * @returns {number} statusCode - 200: 성공, 400: 캐릭터 미선택
+ */
 export const listCharacterItems = async ({ userId = null, page, pageSize }) => {
   const characterId = await getSelectedCharacterId(userId);
 
@@ -31,7 +40,19 @@ export const listCharacterItems = async ({ userId = null, page, pageSize }) => {
 
   return await getCharacterItems(characterId, page, pageSize);
 };
-// 아이템 검색 서비스
+
+/**
+ * 아이템 검색 서비스
+ * @param {Object} param - 검색 조건 객체
+ * @param {string} param.searchTerm - 아이템 이름 검색어
+ * @param {Object} [param.stats] - 스탯 조건
+ * @param {number} [param.minValue] - 최소 가격
+ * @param {boolean} [param.isEquippable] - 장비 가능 여부
+ * @param {number} param.page - 페이지 번호
+ * @param {number} param.pageSize - 페이지당 항목 수
+ * @returns {Object} - 검색된 아이템 목록 및 총 개수
+ * @returns {number} statusCode - 200: 성공
+ */
 export const findItems = async ({
   searchTerm,
   stats = null,
@@ -71,7 +92,16 @@ export const findItems = async ({
   };
 };
 
-// 아이템 구매 서비스
+/**
+ * 아이템 구매 서비스
+ * @param {Object} param - 구매 요청 정보
+ * @param {number} param.userId - 유저 ID
+ * @param {string} param.role - 유저 역할 (ADMIN이면 가격이 0으로 설정)
+ * @param {number} param.itemId - 구매할 아이템 ID
+ * @param {number} [param.quantity=1] - 구매할 수량
+ * @returns {Object} - 구매한 아이템 목록 및 남은 골드
+ * @returns {number} statusCode - 200: 성공, 404: 캐릭터 또는 아이템을 찾을 수 없음, 400: 골드 부족
+ */
 export const purchaseItem = async ({
   userId = null,
   role = null,
@@ -138,8 +168,15 @@ export const purchaseItem = async ({
 
   return result;
 };
-
-// 아이템 판매 서비스
+/**
+ * 아이템 판매 서비스
+ * @param {Object} param - 판매 요청 정보
+ * @param {number} param.userId - 유저 ID
+ * @param {string} param.itemName - 판매할 아이템 이름
+ * @param {number} param.quantity - 판매할 수량
+ * @returns {Object} - 판매 결과 (골드 및 남은 아이템)
+ * @returns {number} statusCode - 200: 성공, 404: 캐릭터를 찾을 수 없음
+ */
 export const sellUserItem = async ({
   userId = null,
   role = null,
@@ -163,7 +200,14 @@ export const sellUserItem = async ({
   });
 };
 
-// 아이템 장착 서비스
+/**
+ * 아이템 장착 서비스
+ * @param {Object} param - 장착 요청 정보
+ * @param {number} param.userId - 유저 ID
+ * @param {number} param.itemId - 장착할 아이템 ID
+ * @returns {Object} - 장착된 아이템 목록 및 최종 스탯
+ * @returns {number} statusCode - 200: 성공, 404: 캐릭터를 찾을 수 없음
+ */
 export const equipUserItem = async ({ userId = null, itemId }) => {
   const characterId = await getSelectedCharacterId(userId);
   if (!characterId) {
@@ -210,7 +254,14 @@ export const equipUserItem = async ({ userId = null, itemId }) => {
   };
 };
 
-// 아이템 장착 해제 서비스
+/**
+ * 아이템 장착 해제 서비스
+ * @param {Object} param - 장착 해제 요청 정보
+ * @param {number} param.userId - 유저 ID
+ * @param {number} param.itemId - 장착 해제할 아이템 ID
+ * @returns {Object} - 해제된 아이템 정보 및 장착된 아이템 목록
+ * @returns {number} statusCode - 200: 성공, 404: 캐릭터를 찾을 수 없음
+ */
 export const unequipUserItem = async ({ userId = null, itemId }) => {
   const characterId = await getSelectedCharacterId(userId);
   if (!characterId) {
@@ -233,7 +284,13 @@ export const unequipUserItem = async ({ userId = null, itemId }) => {
   };
 };
 
-// 사냥 보상 서비스
+/**
+ * 사냥 보상 서비스
+ * @param {Object} param - 유저 ID
+ * @param {number} param.userId - 유저 ID
+ * @returns {Object} - 보상으로 획득한 골드 및 아이템 정보
+ * @returns {number} statusCode - 200: 성공, 404: 캐릭터를 찾을 수 없음
+ */
 export const rewardUserForHunting = async ({ userId = null }) => {
   const characterId = await getSelectedCharacterId(userId);
   if (!characterId) {

@@ -6,7 +6,13 @@ import {
 } from '../repositories/item-management-repository.js';
 import { prisma } from '../lib/prisma.js';
 
-// 아이템 등록
+/**
+ * 신규 아이템 생성 서비스
+ * @param {Object} param - 아이템 정보
+ * @param {Object} param.itemData - 아이템 정보 객체
+ * @returns {Object} - 생성된 아이템 정보
+ * @returns {number} statusCode - 201: 성공
+ */
 export const createNewItem = async ({ itemData }) => {
   return await prisma.$transaction(async (prisma) => {
     let newItem;
@@ -44,7 +50,14 @@ export const createNewItem = async ({ itemData }) => {
   });
 };
 
-// 아이템 수정
+/**
+ * 아이템 수정 서비스
+ * @param {Object} param - 아이템 수정 정보
+ * @param {number} param.itemId - 수정할 아이템 ID
+ * @param {Object} param.updateData - 수정할 데이터
+ * @returns {Object} - 수정된 아이템 정보
+ * @returns {number} statusCode - 200: 성공
+ */
 export const modifyItem = async ({ itemId, updateData }) => {
   return await prisma.$transaction(async (prisma) => {
     // 스탯 정보 분리
@@ -73,7 +86,13 @@ export const modifyItem = async ({ itemId, updateData }) => {
   });
 };
 
-// 아이템 삭제
+/**
+ * 아이템 삭제 서비스
+ * @param {Object} param - 아이템 삭제 정보
+ * @param {number} param.itemId - 삭제할 아이템 ID
+ * @returns {Object} - 삭제 결과 메시지
+ * @returns {number} statusCode - 200: 성공, 404: 아이템을 찾을 수 없음
+ */
 export const removeItem = async ({ itemId }) => {
   return await prisma.$transaction(async (prisma) => {
     await deleteItem(itemId);

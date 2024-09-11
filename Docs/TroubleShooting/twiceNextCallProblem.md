@@ -1,4 +1,18 @@
 # 최초로 실행하는 미들웨어에서 next()를 두번 호출해야 결과를 반환하던 문제
+- [최초로 실행하는 미들웨어에서 next()를 두번 호출해야 결과를 반환하던 문제](#최초로-실행하는-미들웨어에서-next를-두번-호출해야-결과를-반환하던-문제)
+  - [문제](#문제)
+  - [원인](#원인)
+      - [테스트했던 미들웨어들](#테스트했던-미들웨어들)
+        - [token-middleware.js](#token-middlewarejs)
+        - [auth-middleware.js](#auth-middlewarejs)
+        - [onwership-middleware.js](#onwership-middlewarejs)
+        - [role-middleware.js (문제원인)](#role-middlewarejs-문제원인)
+      - [라우팅 설정과 문제 되었던 미들웨어 설정](#라우팅-설정과-문제-되었던-미들웨어-설정)
+        - [라우팅 설정](#라우팅-설정)
+        - [미들웨어 설정](#미들웨어-설정)
+  - [해결 방법](#해결-방법)
+
+
 
 ## 문제
 token-middleware.js에서 next()를 반드시 두번 호출해야 값을 반환합니다.

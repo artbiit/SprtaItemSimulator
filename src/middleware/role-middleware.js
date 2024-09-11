@@ -6,7 +6,10 @@ const rolePermissions = {
 };
 
 /**
- * 토큰 인증과 권한 인증이 같이 필요한 경우 사용하는 미들웨업니다. 따라서 auth-middleware에서 토큰 인증이 완료된 경우만 동작합니다.
+ * 요청한 유저의 권한을 확인하는 미들웨어
+ * 유저의 역할이 요구되는 권한과 일치하는지 검사하며, 유저가 SUSPENDED 상태일 경우 차단합니다.
+ * @param {string} roleRequired - 요구되는 역할 (예: 'ADMIN', 'USER')
+ * @returns {Function} - 미들웨어 함수
  */
 export const checkUserRole = (roleRequired) => (req, res, next) => {
   const user = req.user;

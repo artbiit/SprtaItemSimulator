@@ -2,6 +2,10 @@
   "name": "sparta-item-simulator",
   "version": "1.0.0",
   "main": "src/app.js",
+  "engines": {
+    "node": ">=22.8.0",
+    "yarn": ">=1.22.22"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/artbiit/SprtaItemSimulator"
@@ -14,12 +18,14 @@
   "dependencies": {
     "@faker-js/faker": "^9.0.0",
     "@prisma/client": "^5.19.1",
+    "axios": "^1.7.7",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "helmet": "^7.1.0",
+    "https": "^1.0.0",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.11.0",
     "prisma": "^5.19.1",

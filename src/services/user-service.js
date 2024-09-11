@@ -26,7 +26,15 @@ const {
   SERVER_ADMIN_ID,
 } = env;
 
-// 회원가입 서비스
+/**
+ * 회원가입 서비스
+ * @param {Object} param - 유저 정보
+ * @param {string} param.username - 유저 이름
+ * @param {string} param.password - 비밀번호
+ * @param {string} param.nickname - 닉네임
+ * @returns {Object} - 생성된 유저 정보
+ * @returns {number} statusCode - 201: 성공, 400: 입력값 오류
+ */
 export const registerUser = async ({ username, password, nickname }) => {
   if (!Utils.testUsername(username)) {
     throw new ApiError(
@@ -66,7 +74,14 @@ export const registerUser = async ({ username, password, nickname }) => {
   }
 };
 
-// 로그인 서비스
+/**
+ * 로그인 서비스
+ * @param {Object} param - 로그인 정보
+ * @param {string} param.username - 유저 이름
+ * @param {string} param.password - 비밀번호
+ * @returns {Object} - JWT 토큰 및 리프레시 토큰
+ * @returns {number} statusCode - 200: 성공, 401: 로그인 실패
+ */
 export const loginUser = async ({ username, password }) => {
   const user = await findUserByUsername(username);
   if (!user) {
@@ -114,7 +129,13 @@ export const loginUser = async ({ username, password }) => {
   return { token, refreshToken };
 };
 
-//로그아웃 서비스
+/**
+ * 로그아웃 서비스
+ * @param {Object} param - 로그아웃 요청 정보
+ * @param {number} param.userId - 유저 ID
+ * @returns {Object} - 로그아웃 성공 메시지
+ * @returns {number} statusCode - 200: 성공
+ */
 export const logoutUser = async ({ userId }) => {
   await deleteSelectedCharacterForUser(userId);
   // 즉시 만료되는 토큰 발급 (expiresIn: '1ms')
@@ -125,7 +146,15 @@ export const logoutUser = async ({ userId }) => {
   return { message: 'Logged out successfully', token };
 };
 
-// 비밀번호 변경 서비스
+/**
+ * 비밀번호 변경 서비스
+ * @param {Object} param - 비밀번호 변경 요청 정보
+ * @param {number} param.userId - 유저 ID
+ * @param {string} param.oldPassword - 기존 비밀번호
+ * @param {string} param.newPassword - 새로운 비밀번호
+ * @returns {Object} - 비밀번호 변경 성공 메시지
+ * @returns {number} statusCode - 200: 성공, 401: 비밀번호 오류
+ */
 export const changePassword = async ({ userId, oldPassword, newPassword }) => {
   const user = await findUserById(userId);
   const validPassword = await bcrypt.compare(
@@ -149,7 +178,13 @@ export const changePassword = async ({ userId, oldPassword, newPassword }) => {
   return { message: 'Password updated successfully' };
 };
 
-// 회원 삭제 서비스
+/**
+ * 회원 삭제 서비스
+ * @param {Object} param - 삭제 요청 정보
+ * @param {number} param.userId - 유저 ID
+ * @returns {Object} - 삭제 성공 메시지
+ * @returns {number} statusCode - 200: 성공, 403: 관리자 계정 삭제 불가
+ */
 export const deleteUserById = async ({ userId }) => {
   // 1. 유저 정보 가져오기
   const user = await findUserById(userId);
@@ -166,7 +201,13 @@ export const deleteUserById = async ({ userId }) => {
   return { message: 'User deleted successfully' };
 };
 
-// 토큰 재발급 API
+/**
+ * 토큰 재발급 서비스
+ * @param {Object} param - 토큰 재발급 요청 정보
+ * @param {string} param.refreshToken - 리프레시 토큰
+ * @returns {Object} - 새로운 JWT 토큰
+ * @returns {number} statusCode - 200: 성공, 403: 토큰 오류, 404: 유저를 찾을 수 없음
+ */
 export const refreshToken = async ({ refreshToken }) => {
   // 리프레시 토큰 검증
   const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
@@ -195,7 +236,15 @@ export const refreshToken = async ({ refreshToken }) => {
   }
 };
 
-/** 사용자 권한 변경 */
+/**
+ * 사용자 권한 변경 서비스
+ * @param {Object} param - 권한 변경 요청 정보
+ * @param {number} param.userId - 관리자 유저 ID
+ * @param {string} param.targetUserName - 변경할 유저 이름
+ * @param {string} param.newRole - 새로운 권한
+ * @returns {Object} - 권한 변경 성공 메시지
+ * @returns {number} statusCode - 200: 성공, 403: 권한 부족, 404: 유저를 찾을 수 없음
+ */
 export const changeUserRole = async ({ userId, targetUserName, newRole }) => {
   const requestingUser = await findUserById(userId);
   if (!requestingUser || requestingUser.role !== 'ADMIN') {
