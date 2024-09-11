@@ -22,7 +22,7 @@ const generateRandomItemData = () => {
     'EPIC',
     'LEGENDARY',
   ]);
-  const isEquippable = true;
+  const isEquippable = faker.datatype.boolean(0.5);
 
   const baseItem = {
     name: faker.commerce.productName(),
@@ -82,6 +82,6 @@ const testCreateNewItem = async () => {
 };
 
 // 테스트 실행
-for (let i = 0; i < 50; i++) {
+for (let i = 0; i < 200; i++) {
   await testCreateNewItem();
 }

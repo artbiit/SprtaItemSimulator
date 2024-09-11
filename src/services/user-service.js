@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import ApiError from '../errors/api-error.js';
 import env from '../lib/env.js';

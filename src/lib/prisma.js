@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import logger from './logger.js';
 import env from './env.js';
 import Utils from './utils.js';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 const { SERVER_ADMIN_ID, SERVER_ADMIN_PW } = env;
 const prisma = new PrismaClient();

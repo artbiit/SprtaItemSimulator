@@ -1,14 +1,53 @@
-version: "3"
+version: '3.8'
 
 services:
-  db:
+  mysql:
     image: mysql:latest
-    restart: always
+    container_name: mysql_db
     environment:
-      MYSQL_ROOT_PASSWORD: RlfnrRlfnr1!
-      MYSQL_DATABASE: sparta
-      MYSQL_USER: sparta
-      MYSQL_PASSWORD: RlfnrRlfnr1!
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "3301:3306"
-      - "33061:33060"
+      - "${DB_PORT}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - my_network
+  app:
+    image: node:22.8.0-alpine
+    container_name: my_node_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - SERVER_PORT=${SERVER_PORT}
+      - SERVER_ADMIN_ID=${SERVER_ADMIN_ID}
+      - SERVER_ADMIN_PW=${SERVER_ADMIN_PW}
+      - DB_HOST=mysql_db
+      - DB_PORT=3306
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_CONNECTION_LIMIT=${DB_CONNECTION_LIMIT}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - JWT_REFRESH_EXPIRES_IN=${JWT_REFRESH_EXPIRES_IN}
+      - JWT_ALGORITHM=${JWT_ALGORITHM}
+      - JWT_ISSUER=${JWT_ISSUER}
+      - JWT_AUDIENCE=${JWT_AUDIENCE}
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    volumes:
+      - .:/app
+    command: npm start
+    networks:
+      - my_network
+
+volumes:
+  mysql_data:
+networks:
+  my_network:
+    driver: bridge
