@@ -6,7 +6,6 @@ import {
   equipItem,
   gainHuntingReward,
   getSelectedCharacterId,
-  countCharacterItems,
 } from '../repositories/item-interaction-repository.js';
 import ApiError from '../errors/api-error.js';
 
@@ -18,21 +17,50 @@ export const listCharacterItems = async ({ userId = null, page, pageSize }) => {
     throw new ApiError('No character selected', 400);
   }
 
-  // 총 아이템 수 계산
-  const totalItemsCount = await countCharacterItems(characterId);
-
-  return {
-    totalItems: totalItemsCount, // 캐릭터가 보유한 총 아이템 수
-    items: (await getCharacterItems(characterId, page, pageSize)) || [], // 현재 페이지의 아이템 목록
-  };
+  return await getCharacterItems(characterId, page, pageSize);
 };
 // 아이템 검색 서비스
-export const findItems = async ({ searchTerm, page, pageSize }) => {
-  return await searchItems(searchTerm, page, pageSize);
+export const findItems = async ({
+  searchTerm,
+  stats = null,
+  minValue = null,
+  isEquippable = null,
+  page,
+  pageSize,
+}) => {
+  // Prisma 쿼리 필터를 구성
+  const filters = {};
+
+  // 이름 검색 (포함되는지 여부)
+  if (searchTerm) {
+    filters.name = { contains: searchTerm };
+  }
+
+  // 스탯 조건 추가 (정확히 일치하는 값)
+  if (stats != null) {
+    filters.stats = { some: stats };
+  }
+
+  // 가격 (이상 조건)
+  if (minValue !== null) {
+    filters.value = { gte: minValue };
+  }
+
+  if (isEquippable !== null) {
+    filters.isEquippable = isEquippable;
+  }
+
+  // 레포지터리에 쿼리 전달 및 결과 반환
+  const [items, totalItems] = await searchItems(filters, page, pageSize);
+
+  return {
+    totalItems, // 검색된 총 아이템 수
+    items, // 검색된 아이템 목록
+  };
 };
 
 // 아이템 구매 서비스
-export const purchaseItem = async ({ userId, itemId, userRole, price }) => {
+export const purchaseItem = async ({ userId = null, role = null, itemId }) => {
   const finalPrice = userRole === 'ADMIN' ? 0 : price;
   return await buyItem({ userId, itemId, price: finalPrice });
 };

@@ -63,11 +63,11 @@ model Character {
   accuracy       Float  @default(0)
   expGainRate    Float  @default(0)
   goldGainRate   Float  @default(0)
+  gold           Int    @default(10000)
   ownerId        Int
   owner          User   @relation("UserCharacters", fields: [ownerId], references: [id])
   equippedItems  Item[] @relation("EquippedItems")
   inventoryItems Item[] @relation("InventoryItems")
-
   @@index([ownerId], map: "Character_ownerId_fkey")
 }
 

@@ -6,28 +6,34 @@ export const getCharacterItems = async (
   page = 1,
   pageSize = 10
 ) => {
-  return prisma.item.findMany({
+  const character = await prisma.character.findUnique({
     where: {
-      OR: [
-        { inventoryOfCharacterId: characterId }, // 인벤토리에 있는 아이템
-        { equippedByCharacterId: characterId }, // 장착된 아이템
-      ],
+      id: characterId,
     },
+    select: { name: true, gold: true },
+  });
+
+  //아이템 목록(페이징)
+  const where = {
+    OR: [
+      { inventoryOfCharacterId: characterId }, // 인벤토리에 있는 아이템
+      { equippedByCharacterId: characterId }, // 장착된 아이템
+    ],
+  };
+  const items = await prisma.item.findMany({
+    where,
     skip: (page - 1) * pageSize,
     take: pageSize,
-  });
-};
-
-// 캐릭터의 인벤토리 및 장착된 아이템 수 카운트
-export const countCharacterItems = async (characterId) => {
-  return prisma.item.count({
-    where: {
-      OR: [
-        { inventoryOfCharacterId: characterId }, // 인벤토리 아이템
-        { equippedByCharacterId: characterId }, // 장착된 아이템
-      ],
+    include: {
+      stats: true, // 아이템에 연결된 스탯 정보도 포함
     },
   });
+  //조건에 맞는 총 아이템 갯수
+  const totalItems = await prisma.item.count({
+    where,
+  });
+
+  return { ...character, totalItems, items };
 };
 
 // 선택된 캐릭터 정보 조회
@@ -39,18 +45,33 @@ export const getSelectedCharacterId = async (userId) => {
   return user?.selectedCharacterId;
 };
 
-// 아이템 검색 (이름 또는 스탯으로)
-export const searchItems = async (searchTerm, page = 1, pageSize = 10) => {
-  return prisma.item.findMany({
-    where: {
-      OR: [
-        { name: { contains: searchTerm } },
-        { stats: { some: { attackBonus: { gte: 10 } } } }, // 예시 조건
-      ],
+// 아이템 검색 (이름, 스탯, 가격)
+export const searchItems = async (filters, page = 1, pageSize = 10) => {
+  // 기존 필터와 보유 캐릭터가 없는 조건을 결합
+  const combinedFilters = {
+    AND: [
+      filters, // 기존의 검색 필터
+      {
+        inventoryOfCharacterId: null, // 인벤토리에 보유된 캐릭터가 없는 아이템
+        equippedByCharacterId: null, // 장착된 캐릭터가 없는 아이템
+      },
+    ],
+  };
+
+  const items = await prisma.item.findMany({
+    where: combinedFilters,
+    include: {
+      stats: true,
     },
     skip: (page - 1) * pageSize,
     take: pageSize,
   });
+
+  const totalItems = await prisma.item.count({
+    where: combinedFilters,
+  });
+
+  return [items, totalItems];
 };
 
 // 아이템 구매 (사용자 또는 관리자)

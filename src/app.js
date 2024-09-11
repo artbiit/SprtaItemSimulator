@@ -38,9 +38,7 @@ const routeHandler = (action, requiredParams) => async (req, res) => {
   try {
     // 요청 방식에 따라 적절한 데이터를 가져옴
     const data = {
-      ...(req.method === 'GET'
-        ? { ...req.params, ...req.query }
-        : { ...req.body }),
+      ...{ ...req.body, ...req.params, ...req.query },
       ...req.user,
     };
     // 필수 파라미터 검증

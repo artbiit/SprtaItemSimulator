@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Character` MODIFY `gold` INTEGER NOT NULL DEFAULT 10000;

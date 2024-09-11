@@ -98,7 +98,7 @@ export const getCharacterInfo = async ({
   if (userId && character.ownerId === userId) {
     info = {
       ...info,
-      money: character.money,
+      gold: character.gold,
       inventory: character.inventoryItems,
     };
   }
