@@ -246,7 +246,9 @@ export const rewardUserForHunting = async ({ userId = null }) => {
   // 기본 골드 보상 + goldGainRate 반영
   const baseGold = 100;
   const additionalGold = baseGold * (1 + character.goldGainRate);
-  await updateCharacterGold(characterId, character.gold + additionalGold);
+  const updatedGold = (
+    await updateCharacterGold(characterId, character.gold + additionalGold)
+  ).gold;
 
   // 아이템 획득 확률 계산
   const itemDropChance = Math.random(); // 0~1 사이의 랜덤 값
@@ -265,40 +267,45 @@ export const rewardUserForHunting = async ({ userId = null }) => {
       acquiredItem = await getRandomItemByRarity(characterId, false);
     }
 
-    // 기존 인벤토리 아이템 확인
-    const existingItems = await getInventoryItem(characterId, acquiredItem.id);
+    if (acquiredItem) {
+      // 기존 인벤토리 아이템 확인
+      const existingItems = await getInventoryItem(
+        characterId,
+        acquiredItem.id
+      );
 
-    // 중첩 가능한 아이템이면 수량 결합 처리
-    if (existingItems && existingItems.length > 0) {
-      let remainingQuantity = 1; // 새로 획득한 아이템의 수량
+      // 중첩 가능한 아이템이면 수량 결합 처리
+      if (existingItems && existingItems.length > 0) {
+        let remainingQuantity = 1; // 새로 획득한 아이템의 수량
 
-      for (const existingItem of existingItems) {
-        const availableSpace = acquiredItem.maxStack - existingItem.quantity;
-        const amountToAdd = Math.min(availableSpace, remainingQuantity);
+        for (const existingItem of existingItems) {
+          const availableSpace = acquiredItem.maxStack - existingItem.quantity;
+          const amountToAdd = Math.min(availableSpace, remainingQuantity);
 
-        if (amountToAdd > 0) {
-          await updateInventoryItem(
-            existingItem.id,
-            existingItem.quantity + amountToAdd
-          );
-          remainingQuantity -= amountToAdd;
+          if (amountToAdd > 0) {
+            await updateInventoryItem(
+              existingItem.id,
+              existingItem.quantity + amountToAdd
+            );
+            remainingQuantity -= amountToAdd;
+          }
+
+          // 중첩 완료 시 중단
+          if (remainingQuantity === 0) break;
         }
 
-        // 중첩 완료 시 중단
-        if (remainingQuantity === 0) break;
+        // 남은 수량이 있다면 새로운 슬롯에 아이템 추가
+        if (remainingQuantity > 0) {
+          await createInventoryItemWithItemData(
+            characterId,
+            acquiredItem,
+            remainingQuantity
+          );
+        }
+      } else {
+        // 아이템이 인벤토리에 없으면 새로 추가
+        await createInventoryItemWithItemData(characterId, acquiredItem, 1);
       }
-
-      // 남은 수량이 있다면 새로운 슬롯에 아이템 추가
-      if (remainingQuantity > 0) {
-        await createInventoryItemWithItemData(
-          characterId,
-          acquiredItem,
-          remainingQuantity
-        );
-      }
-    } else {
-      // 아이템이 인벤토리에 없으면 새로 추가
-      await createInventoryItemWithItemData(characterId, acquiredItem, 1);
     }
   }
 
@@ -306,6 +313,9 @@ export const rewardUserForHunting = async ({ userId = null }) => {
   return {
     message: 'Hunting reward gained!',
     goldEarned: additionalGold,
-    itemAcquired: acquiredItem ? acquiredItem.name : 'No item acquired',
+    currentGold: updatedGold,
+    itemAcquired: acquiredItem
+      ? `[${acquiredItem.rarity}]${acquiredItem.name}`
+      : 'No item acquired',
   };
 };

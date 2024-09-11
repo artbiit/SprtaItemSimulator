@@ -445,6 +445,11 @@ export const getRandomItemByRarity = async (
     },
   });
 
+  // 만약 총 아이템 수가 0이면 바로 null 반환
+  if (totalItems === 0) {
+    return null; // 아이템이 없으면 null 반환
+  }
+
   // 2. 총 아이템 수 중 랜덤한 오프셋을 계산
   const randomOffset = Math.floor(Math.random() * totalItems);
 
